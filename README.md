@@ -1,11 +1,11 @@
 # WRI India Decarbonization Workshop 
 
-Create a Conda Environment
+##Create a Conda Environment
 
 Follow the instructions to install Anaconda: 
-macOS: https://docs.anaconda.com/anaconda/install/mac-os/
-Windows: https://docs.anaconda.com/anaconda/install/windows/
-Linux: https://docs.anaconda.com/anaconda/install/linux/
+* macOS: `https://docs.anaconda.com/anaconda/install/mac-os/`
+* Windows: `https://docs.anaconda.com/anaconda/install/windows/`
+* Linux: `https://docs.anaconda.com/anaconda/install/linux/`
 
 To avoid incompatibility problems between packages, create a specific Anaconda environment named <myenv> with python version 3.8 for GridPath.
 
