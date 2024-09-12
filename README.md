@@ -27,7 +27,7 @@ Download the folder in  containing the .csv input files corresponding to the sta
 
 You now have the path to the downloaded input files as <path_to_csvs> and the folder with the .csv input files is <folder_name>.
 
-Download the tutorial materials for the workshop from the GitHub repository typing in the terminal git clone https://github.com/cetlab-ucsb/wri-workshop.git from the project folder <path_to_project>
+Download the tutorial materials for the workshop from the GitHub repository typing in the terminal `git clone https://github.com/cetlab-ucsb/wri-workshop.git` from the project folder <path_to_project>
 
 Install GridPath v0.14.1
 
