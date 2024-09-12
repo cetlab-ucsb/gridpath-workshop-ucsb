@@ -21,13 +21,13 @@ Install Jupyter Notebook by invoking the following command: pip3 install jupyter
 
 matplotlib is the plotting library utilized by the visualization functionalities. The command to install matplotlib  is conda install conda-forge::matplotlib 
 
-Download Workshop Files
+## Download Workshop Files
 
 Download the folder in  containing the .csv input files corresponding to the state you want to install https://drive.google.com/drive/u/0/folders/1zTkNsWSxBnIoFxwPWBdd1wDqfUPV91bR
 
 You now have the path to the downloaded input files as <path_to_csvs> and the folder with the .csv input files is <folder_name>.
 
-Download the tutorial materials for the workshop from the GitHub repository typing in the terminal `git clone https://github.com/cetlab-ucsb/wri-workshop.git` from the project folder <path_to_project>
+Download the tutorial materials for the workshop from the GitHub repository typing in the terminal `git clone https://github.com/cetlab-ucsb/wri-workshop.git` from the project folder `<path_to_project>`
 
 Install GridPath v0.14.1
 
