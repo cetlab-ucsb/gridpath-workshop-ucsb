@@ -1,4 +1,4 @@
-WRI India Decarbonization Workshop 
+# WRI India Decarbonization Workshop 
 
 Create a Conda Environment
 
