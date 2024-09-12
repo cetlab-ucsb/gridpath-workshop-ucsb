@@ -9,7 +9,7 @@ Linux: https://docs.anaconda.com/anaconda/install/linux/
 
 To avoid incompatibility problems between packages, create a specific Anaconda environment named <myenv> with python version 3.8 for GridPath.
 
-conda create -n <myenv> python=3.8
+`conda create -n <myenv> python=3.8`
 
 You can find instructions on how to manage Anaconda environments on this website: 
 
