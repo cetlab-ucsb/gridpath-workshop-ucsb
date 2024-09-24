@@ -86,6 +86,7 @@ The jupyter notebook interface will look like this:
 Visually navigate and click on the jupyter notebook titled “wri-workshop_MP.ipynb” to open the jupyter notebook.
 Once you've opened the Jupyter Notebook, simply follow the steps outlined in the notebook to generate the results. After the model has finished running, the results will be saved in your local folder. The Jupyter notebook will open in a new tab on your browser and look like this:
 
+![jupyter_screenshot](https://github.com/cetlab-ucsb/wri-workshop/blob/main/jupyter_example.png)
 
 In jupyter, every code block needs to be run individually. You can run a code block by clicking the play button (blue circle above). Any text that starts with # is a comment. Comments are ignored by the Python interpreter and are not executed as part of the code. They are used to explain or clarify the code for developers, making it easier to understand. Some code blocks include comments which include additional context and/or instructions. 
 
