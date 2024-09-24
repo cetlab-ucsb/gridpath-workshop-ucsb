@@ -511,9 +511,12 @@ def _plot_dispatch(data_, scens_label_, tech_label_,
     zones_  = scens_label_['zone'].to_list()
 
     periods_ = np.sort(data_['Period'].unique())
+    techs_ = pd.unique(tech_label_['group'])
+    #print(techs_)
 
-    techs_, idx_ = np.unique(tech_label_['group'], return_index = True)
-    colors_      = tech_label_.loc[tech_label_.index[idx_], 'group_color'].to_list()
+    colors_ = [tech_label_.loc[tech_label_['group'] == tech, 'group_color'].unique()[0] for tech in techs_]
+    #print(colors_)
+    #colors_      = tech_label_.loc[tech_label_.index[idx_], 'group_color'].to_list()
 
     width           = .8/len(scens_)
     offset_positive = 0.
@@ -545,7 +548,7 @@ def _plot_dispatch(data_, scens_label_, tech_label_,
 
                 if idx_.sum() == 1:
                     energy = df_.loc[idx_, 'Energy'].to_numpy()[0]
-                    color  = tech_label_.loc[tech_label_['group'] == tech, 'group_color'] .unique()
+                    color  = tech_label_.loc[tech_label_['group'] == tech, 'group_color'].unique()
 
                     if energy != 0:
                         if energy > 0:

@@ -43,7 +43,7 @@ def _load_new_and_existing_capacity(scen_labels_, path):
                                            np.sum(table_.loc[idx_, 'capacity_mw']),
                                            np.sum(table_.loc[idx_, 'capacity_mwh'])]]
 
-        return pd.DataFrame(np.array(capacity_all_), columns = ['Scenario', 'Period', 'Technology', 'Zone', 'Status', 'Power', 'Energy'])
+        return pd.DataFrame(np.array(capacity_all_), columns = ['Scenario', 'Period', 'Technology', 'Zone', 'Status', 'Power', 'Energy']).sort_values(by = ['Scenario', 'Period', 'Technology', 'Zone']).reset_index(drop = True)
 
     scenarios_ = scen_labels_['scenario'].unique()
     zones_     = scen_labels_['zone'].unique()
@@ -90,7 +90,7 @@ def _group_capacity_technologies(capacity_all_, tech_labels_):
                         techs_ = tech_labels_.loc[tech_labels_['group'] == group, 'technology'].to_list()
                         df_    = __agg(df_, [scenario, period, group, zone, status], techs_)
                     dfs_.append(df_)
-    return pd.concat(dfs_).reset_index(drop = True)
+    return pd.concat(dfs_).sort_values(by = ['Scenario', 'Period', 'Technology', 'Zone']).reset_index(drop = True)
 
 # Grab data from databases for plotting new and existing capacity
 def _load_new_and_existing_capacity_by_zone(scenarios_, path):
@@ -214,7 +214,6 @@ def _load_energy_dispatch_by_zone(scenarios_, path):
 
         dispatch_ = []
         for tech, i_tech in zip(techs_, range(len(techs_))):
-            print(tech)
             for period, i_period in zip(periods_, range(len(periods_))):
                 for zone, i_zone in zip(zones_, range(len(zones_))):
                     # Find specific row from database 
@@ -522,7 +521,7 @@ def _load_RPS(data_, clean_techs_):
                              demand, 
                              rps])
             
-    return pd.DataFrame(np.stack(RPS_), columns = ['Scenario', 'Period', 'Zone', 'Clean_Energy', 'Energy', 'RPS'])
+    return pd.DataFrame(np.stack(RPS_), columns = ['Scenario', 'Period', 'Zone', 'Clean_Energy', 'Energy', 'RPS']).sort_values(by = ['Scenario', 'Period', 'Technology', 'Zone']).reset_index(drop = True)
 
 
 # Grab data from databases for plotting GHG emissions
@@ -610,7 +609,7 @@ def _load_system_cost(scen_labels_, path):
                               zone,
                               np.sum(table_.loc[idx_, 'timepoint_weight']*table_.loc[idx_, 'variable_om_cost'])]]
 
-        return pd.DataFrame(np.array(vr_cost_), columns = ['Scenario', 'Period', 'Zone', 'Variable_Costs'])
+        return pd.DataFrame(np.array(vr_cost_), columns = ['Scenario', 'Period', 'Zone', 'Variable_Costs']).sort_values(by = ['Scenario', 'Period', 'Zone']).reset_index(drop = True)
 
     # Load fix capacity cost table and process data from database
     def __load_fx_cost_from_csv(table_, zones_, scenario):
@@ -878,7 +877,7 @@ def _load_GHG_emissions(scen_labels_, path):
                                     zone,
                                     np.sum(table_.loc[idx_, 'timepoint_weight']*table_.loc[idx_, 'carbon_emissions_tons'])]]
 
-        return pd.DataFrame(np.array(emissions_), columns = ['Scenario', 'Period', 'Technology', 'Zone', 'GHG'])
+        return pd.DataFrame(np.array(emissions_), columns = ['Scenario', 'Period', 'Technology', 'Zone', 'GHG']).sort_values(by = ['Scenario', 'Period', 'Technology', 'Zone']).reset_index(drop = True)
 
     # Load energy dispatch table and process data from database
     def __load_demand_from_csv(demand_table_, timepoints_table_, zones_, scenario):
@@ -941,7 +940,7 @@ def _GHG_emissions_intensity(emissions_, demands_):
 
     emissions_['Load']      = emissions_['Load'].astype(float)
     emissions_['Intensity'] = emissions_['GHG']/emissions_['Load']
-    return emissions_, demands_
+    return emissions_.sort_values(by = ['Scenario', 'Period', 'Zone']).reset_index(drop = True), demands_
 
 
 # Grab data from databases for plotting state generation  
@@ -1161,6 +1160,31 @@ def _load_energy_trading(scenarios_, path):
 # Grab data from databases for plotting energy dispatch and clean energy targets
 def _load_dispatch(scen_labels_, path):
 
+    def __merge_ed_and_tx(ed_, Tx_):
+
+        df_  = ed_.groupby(['Scenario', 'Period', 'Zone'], as_index = False).agg({'Energy': 'sum'})
+        df_  = pd.merge(df_, Tx_, on = ['Scenario', 'Period', 'Zone']).reset_index(drop = True)
+
+        df_['Import'] += df_['Export']
+        df_['Export']  = 0.
+        # Caculate state-level curtailment and loses
+        df_['Curtailment'] = df_['Load'] - df_['Energy'] - df_['Import']
+        df_['Tx_Losses']   = - df_['Tx_Losses_fr'] - df_['Tx_Losses_to']
+        # Caculate Load Shedding
+        df_.loc[df_['Curtailment'] > 0., 'Shedding'] = df_.loc[df_['Curtailment'] > 0., 'Curtailment']
+        df_.loc[df_['Curtailment'] > 0., 'Curtailment'] = 0.
+        df_ = df_.fillna(0.)
+        df_ = df_.drop(columns = ['Energy', 'Tx_Losses_to', 'Tx_Losses_fr', 'Energy', 'Load'])
+        # Merge both dataframes
+        dfs_     = []
+        columns_ = ['Curtailment', 'Shedding', 'Import', 'Tx_Losses', 'Export']
+        for column in columns_:
+            df_p_               = df_.drop(columns = [i for i in columns_ if i != column])
+            df_p_['Technology'] = column
+            dfs_               += [df_p_.rename(columns = {column: 'Energy'})]
+
+        return pd.concat([ed_, pd.concat(dfs_, axis = 0)], axis = 0).sort_values(by = ['Period']).reset_index(drop = True)
+
     # Load energy dispatch table and process data from database
     def __load_ed_from_csv(table_, zones_, scenario):
 
@@ -1185,22 +1209,112 @@ def _load_dispatch(scen_labels_, path):
 
         return pd.DataFrame(np.array(dispatch_), columns = ['Scenario', 'Period', 'Technology', 'Zone', 'Energy'])
 
+    # Load energy dispatch table and process data from database
+    def __load_tx_loss_from_csv(table_, zones_, scenario):
+
+        periods_ = table_['period'].unique()
+
+        losses_ = []
+        for period, i_period in zip(periods_, range(len(periods_))):
+            for zone, i_zone in zip(zones_, range(len(zones_))):
+                # Find specific row from database
+                if zone == 'India': idx_ = (table_['period'] == period)
+                else:               idx_ = (table_['period'] == period) & (table_['lz_to'] == zone)
+
+                losses_ += [[scenario,
+                             period,
+                             zone,
+                             np.sum(table_.loc[idx_, 'timepoint_weight']*table_.loc[idx_, 'transmission_losses_lz_from']),
+                             np.sum(table_.loc[idx_, 'timepoint_weight']*table_.loc[idx_, 'transmission_losses_lz_to'])]]
+
+        return pd.DataFrame(np.array(losses_), columns = ['Scenario', 'Period', 'Zone', 'Tx_Losses_fr', 'Tx_Losses_to'])
+
+    def __load_imports_and_exports_from_csv(table_, zones_, scenario):
+        periods_ = table_['period'].unique()
+
+        exchange_ = []
+        for period, i_period in zip(periods_, range(len(periods_))):
+            for zone, i_zone in zip(zones_, range(len(zones_))):
+                # Find specific row from database
+                if zone == 'India':
+                    imports = 0.
+                    exports = 0.
+                else:
+                    state_exchange_ = table_.loc[table_['load_zone'] == zone].reset_index(drop = True)
+                    idx_            = table_['period'] == period
+                    aux_1_ = state_exchange_.loc[idx_, 'imports_mw']*state_exchange_.loc[idx_, 'timepoint_weight']
+                    aux_2_ = state_exchange_.loc[idx_, 'exports_mw']*state_exchange_.loc[idx_, 'timepoint_weight']
+                    imports = np.sum(aux_1_.loc[aux_1_ > 0.]) - np.sum(aux_2_.loc[aux_2_ < 0.])
+                    exports = np.sum(aux_2_.loc[aux_2_ > 0.]) - np.sum(aux_1_.loc[aux_1_ < 0.])
+                exchange_ += [[scenario, period, zone, imports, exports]]
+        return pd.DataFrame(np.array(exchange_), columns = ['Scenario', 'Period', 'Zone', 'Import', 'Export'])
+
+    # Load energy dispatch table and process data from database
+    def __load_demand_from_csv(demand_table_, timepoints_table_, zones_, scenario):
+        periods_ = timepoints_table_['period'].unique()
+        demand_  = []
+        for period, i_period in zip(periods_, range(len(periods_))):
+            for zone, i_zone in zip(zones_, range(len(zones_))):
+                # Find specific row from database
+                idx_ = timepoints_table_['period'] == period
+
+                if zone == 'India':
+                    state_demand_              = demand_table_.groupby('timepoint').agg({'load_mw': 'sum'})
+                    state_demand_['timepoint'] = state_demand_.index
+                    state_demand_              = state_demand_.reset_index(drop = True)
+                else:
+                    state_demand_ = demand_table_.loc[demand_table_['LOAD_ZONES'] == zone].reset_index(drop = True)
+
+                demand_ += [[scenario,
+                             period,
+                             zone,
+                             np.sum(state_demand_.loc[idx_, 'load_mw']*timepoints_table_.loc[idx_, 'timepoint_weight'])]]
+
+        return pd.DataFrame(np.array(demand_), columns = ['Scenario', 'Period', 'Zone', 'Load'])
+
     scenarios_ = scen_labels_['scenario'].to_list()
     zones_     = scen_labels_['zone'].to_list()
-    dfs_       = []
+    eds_       = []
+    losses_    = []
+
     # Open connection: open database and grab meta-data
     for scen, i_scen in zip(scenarios_, range(len(scenarios_))):
         print(scen)
-        dir_name  = r'{}/{}'.format(path, scen)
-        ed_table_ = pd.read_csv(dir_name + r'/results/dispatch_all.csv')
+        dir_name             = r'{}/{}'.format(path, scen)
+        ed_table_            = pd.read_csv(dir_name + r'/results/dispatch_all.csv')
+        losses_table_        = pd.read_csv(dir_name + r'/results/transmission_operations.csv')
+        import_export_table_ = pd.read_csv(dir_name + r'/results/imports_exports.csv')
+        demand_table_        = pd.read_csv(dir_name + r'/inputs/load_mw.tab', sep = '\t', engine = 'python')
+        timepoints_table_    = pd.read_csv(dir_name + r'/inputs/timepoints.tab', sep = '\t', engine = 'python')
+
+
         # Load energy dispatch from csv files
         zone = [zones_[i_scen]]
-        dfs_ += [__load_ed_from_csv(ed_table_, zone, scen)]
 
-    dfs_           = pd.concat(dfs_, axis = 0).reset_index(drop = True)
-    dfs_['Energy'] = dfs_['Energy'].astype(float)
+        # Load transmission losses from csv files
+        tx_loss_ = __load_tx_loss_from_csv(losses_table_, zone, scen)
 
-    return dfs_
+        # Imports and exports exchanges from csv files
+        exchange_ = __load_imports_and_exports_from_csv(import_export_table_, zone, scen)
+
+        # Load enregy curtailmenet from csv files
+        demand_ = __load_demand_from_csv(demand_table_, timepoints_table_, zone, scen)
+        df_     = pd.merge(exchange_, tx_loss_,  on = ['Scenario', 'Period', 'Zone']).reset_index(drop = True)
+
+        losses_ += [pd.merge(df_, demand_,  on = ['Scenario', 'Period', 'Zone']).reset_index(drop = True)]
+        eds_    += [__load_ed_from_csv(ed_table_, zone, scen)]
+
+    eds_           = pd.concat(eds_, axis = 0).reset_index(drop = True)
+    eds_['Energy'] = eds_['Energy'].astype(float)
+
+    losses_                 = pd.concat(losses_, axis = 0).reset_index(drop = True)
+    losses_['Export']       = losses_['Export'].astype(float)
+    losses_['Import']       = losses_['Import'].astype(float)
+    losses_['Tx_Losses_to'] = losses_['Tx_Losses_to'].astype(float)
+    losses_['Tx_Losses_fr'] = losses_['Tx_Losses_fr'].astype(float)
+    losses_['Load']         = losses_['Load'].astype(float)
+
+    return __merge_ed_and_tx(eds_, losses_).sort_values(by = ['Scenario', 'Period', 'Technology', 'Zone']).reset_index(drop = True)
 
 __all__ = ['_load_new_and_existing_capacity',
            '_group_capacity_technologies', 
