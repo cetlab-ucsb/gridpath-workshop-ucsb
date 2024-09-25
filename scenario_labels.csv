@@ -1,4 +1,0 @@
-zone,scenario,label,color,linestyle,tag
-Tamil_Nadu,VRElow_STlow_CONVmid_BPHS_NuclearPVboth_45Ret_PRM110_TN_3_2030_24,VRE & ST (low),#92918B,solid,C1
-Tamil_Nadu,VREmid_STmid_CONVmid_BPHS_NuclearPVboth_45Ret_PRM110_TN_3_2030_24,VRE & ST (mid),#126463,dotted,C2
-Tamil_Nadu,VREhigh_SThigh_CONVmid_BPHS_NuclearPVboth_45Ret_PRM110_TN_3_2030_24,VRE & ST (high),#521A1A,dashed,C3
