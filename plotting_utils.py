@@ -50,6 +50,7 @@ scen_colors_ = pd.DataFrame(columns = ['color', 'lines'],
 scen_colors_['color'] = ['#92918B', '#126463', '#521A1A', '#2CB7B5', '#756A00', '#CA8250', '#D8A581', '#1F390D', '#900C3F']
 scen_colors_['lines'] = ['solid', 'solid', 'dotted', 'dotted', 'dashed', 'dashed', 'dashdot', 'dashdot', 'dashdot']
 
+
 # Plot new and existing capacity for different scenarios
 def _plot_new_and_existing_capacity(data_, scens_label_, tech_label_,
                                     units        = 1e3,
@@ -93,7 +94,7 @@ def _plot_new_and_existing_capacity(data_, scens_label_, tech_label_,
 
     offset = 0.
     y_max  = 0
-    width  = .8/len(scens_)
+    width  = .225
     x_     = np.linspace(0, len(periods_) - 1, len(periods_))
     fig = plt.figure(figsize = (10, 7.5))
     ax  = plt.subplot(111)
@@ -104,8 +105,7 @@ def _plot_new_and_existing_capacity(data_, scens_label_, tech_label_,
 
     offsets_  = []
     lengths_  = []
-    x_period_ = [[] for _ in range(len(periods_))]
-
+    x_period_ = []
     for scen, i_scen in zip(scens_, range(len(scens_))):
 
         zone = zones_[i_scen]
@@ -113,7 +113,6 @@ def _plot_new_and_existing_capacity(data_, scens_label_, tech_label_,
         df_ = data_.loc[data_['Zone'] == zone].sort_values(by = ['Period'])
 
         lengths_.append(len(scen))
-
         for period, i_period in zip(periods_, range(len(periods_))):
             if (i_scen == 0) & (i_period == 0): __make_new_and_existing_capacit_legend(df_, techs_, colors_, ax)
 
@@ -153,21 +152,24 @@ def _plot_new_and_existing_capacity(data_, scens_label_, tech_label_,
 
             ticks_.append(x_[i_period])
             ticks_labels_.append('{}'.format(labels_[i_scen]))
-            offsets_.append(offset)
+            offsets_.append(offset/units)
 
             ticks_labels_length_.append(len(ticks_labels_[-1]))
 
 
             offset = 0.
 
-            x_period_[i_period].append(x_[i_period])
+            x_period_.append(x_[i_period])
+
+
         x_ = x_ + .9/len(scens_)
     z_ = x_ - .9/len(scens_)
 
-    dx_period = (x_period_[0][1] - x_period_[0][0])/len(scens_)
-    x_period_ = [np.mean(x_period) - dx_period for x_period in x_period_]
-    for x_period, period in zip(x_period_, periods_):
-        plt.text(x_period, y_period, '{}'.format(period), fontsize = 14)
+    y_period_ = np.max(np.array(offsets_).reshape(len(periods_), len(scens_)), axis = 0)
+    x_period_ = np.mean(np.array(x_period_).reshape(len(periods_), len(scens_)), axis = 0) - width/2.
+
+    for x_period, y_period, period in zip(x_period_, y_period_, periods_):
+        plt.text(x_period, 1.05*y_period, '{}'.format(period), fontsize = 18)
 
     x_ = np.linspace(0, len(periods_), len(periods_) + 1)
     dz = (x_[1] - z_[0])
@@ -179,15 +181,17 @@ def _plot_new_and_existing_capacity(data_, scens_label_, tech_label_,
                               color     = 'k',
                               clip_on   = False,
                               zorder    = 10)
+
     N_steps  = int(np.ceil((y_max/units)/y_grid_inc))
     y_ticks_ = np.linspace(0, int(N_steps*y_grid_inc), N_steps + 1, dtype = int)
+
     ax.set_xticks(ticks_, ticks_labels_, rotation = 90)
-    ax.set_yticks(y_ticks_, y_ticks_)
 
     ax.xaxis.set_tick_params(labelsize = 12, left = False)
     ax.yaxis.set_tick_params(labelsize = 12, left = False)
 
     ax.set_ylabel(units_label, fontsize = 18)
+    ax.set_yticks(y_ticks_, y_ticks_)
 
     if legend:
         ax.legend(loc            = 'center left',
@@ -195,8 +199,7 @@ def _plot_new_and_existing_capacity(data_, scens_label_, tech_label_,
                   frameon        = False,
                   prop           = {'size': 12})
 
-    #plt.ylim(-10., (np.max(offsets_) + 0.075*np.max(offsets_))/units)
-    plt.ylim(-1.,)
+    plt.ylim(-1.,y_period_.max()*1.2)
 
     plt.title(title, fontsize = 20,
                      y        = 0.912)
@@ -207,6 +210,8 @@ def _plot_new_and_existing_capacity(data_, scens_label_, tech_label_,
     if save:
         plt.savefig(file_name, bbox_inches = 'tight', dpi = 300)
         plt.show()
+
+
 
 # Plot GHG emissions for different scenarios
 def _plot_emissions(emissions_, scen_labels_, save      = False,
@@ -511,14 +516,11 @@ def _plot_dispatch(data_, scens_label_, tech_label_,
     zones_  = scens_label_['zone'].to_list()
 
     periods_ = np.sort(data_['Period'].unique())
-    techs_ = pd.unique(tech_label_['group'])
-    #print(techs_)
+    techs_   = pd.unique(tech_label_['group'])
 
     colors_ = [tech_label_.loc[tech_label_['group'] == tech, 'group_color'].unique()[0] for tech in techs_]
-    #print(colors_)
-    #colors_      = tech_label_.loc[tech_label_.index[idx_], 'group_color'].to_list()
 
-    width           = .8/len(scens_)
+    width           = .225
     offset_positive = 0.
     offset_negative = 0.
     y               = 0
@@ -532,8 +534,9 @@ def _plot_dispatch(data_, scens_label_, tech_label_,
 
     ticks_        = []
     ticks_labels_ = []
-    x_period_     = [[] for _ in range(len(periods_))]
-
+    x_period_     = []
+    y_period_     = []
+    offset_       = []
     for scen, i_scen in zip(scens_, range(len(scens_))):
 
         zone = zones_[i_scen]
@@ -577,22 +580,34 @@ def _plot_dispatch(data_, scens_label_, tech_label_,
             if offset_negative/units < y_min: y_min = offset_negative/units
             if offset_positive/units > y_max: y_max = offset_positive/units
 
+            x_period_.append(x_[i_period])
+            y_period_.append(offset_positive)
+            offset_.append(offset_negative)
             offset_positive = 0.
             offset_negative = 0.
-            x_period_[i_period].append(x_[i_period])
+            #x_period_.append(x_[i_period])
 
             y += 1
 
         x_ = x_ + .9/len(scens_)
-
     z_ = x_ - .9/len(scens_)
 
-    # for x, period in zip(x_, periods_):
-    #     plt.text(x + dz + dx, -np.max(ticks_labels_length_)*71 + dy, '{}'.format(period), fontsize = 14)
-    dx_period = (x_period_[0][1] - x_period_[0][0])/len(scens_)
-    x_period_ = [np.mean(x_period) - dx_period for x_period in x_period_]
-    for x_period, period in zip(x_period_, periods_):
-        plt.text(x_period, y_period, '{}'.format(period), fontsize = 14)
+    x_period_ = np.mean(np.array(x_period_).reshape(len(periods_), len(scens_)), axis = 0) - width/2.
+    y_period_ = np.max(np.array(y_period_).reshape(len(periods_), len(scens_)), axis = 0)
+
+    for x_period, y_period, period in zip(x_period_, y_period_, periods_):
+        plt.text(x_period, 1.05*y_period/units, '{}'.format(period), fontsize = 18)
+
+    ax.set_xticks(ticks_, ticks_labels_, rotation = 90)
+    ax.xaxis.set_tick_params(labelsize = 12, left = False)
+
+    N_steps  = int(np.ceil((y_max/units)/y_grid_inc))
+    y_ticks_ = np.linspace(0, int(N_steps*y_grid_inc), N_steps + 1, dtype = int)
+
+    ax.set_ylabel(units_label, fontsize = 18)
+    ax.set_yticks(y_ticks_, y_ticks_)
+    ax.yaxis.set_tick_params(labelsize = 12, left = False)
+
 
     x_ = np.linspace(0, len(periods_), len(periods_) + 1)
     dz = (x_[1] - z_[0])
@@ -605,17 +620,6 @@ def _plot_dispatch(data_, scens_label_, tech_label_,
                               clip_on   = False,
                               zorder    = 10)
 
-    N_steps  = int(np.ceil((y_max/units)/y_grid_inc))
-    y_ticks_ = np.linspace(0, int(N_steps*y_grid_inc), N_steps + 1, dtype = int)
-
-    ax.set_xticks(ticks_, ticks_labels_, rotation = 90)
-    ax.set_yticks(y_ticks_[:-1], y_ticks_[:-1])
-
-    ax.xaxis.set_tick_params(labelsize = 12, left = False)
-    ax.yaxis.set_tick_params(labelsize = 12, left = False)
-
-    ax.set_ylabel(units_label, fontsize = 18)
-
     if legend:
         ax.legend(loc            = 'center left',
                   bbox_to_anchor = (1, 0.5),
@@ -625,11 +629,14 @@ def _plot_dispatch(data_, scens_label_, tech_label_,
     plt.title(title, fontsize = 18,
                      y        = 0.9125)
 
+    plt.ylim(1.1*np.min(offset_)/units, 1.1*y_period_.max()/units)
+
     ax.spines[['right', 'top', 'left', 'bottom']].set_visible(False)
     ax.grid(axis = 'y')
 
     if save:
-        plt.savefig(file_name, bbox_inches = 'tight', dpi = 350)
+        plt.savefig(file_name, bbox_inches = 'tight',
+                               dpi         = 300)
 
     plt.show()
     
