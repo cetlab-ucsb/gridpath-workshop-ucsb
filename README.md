@@ -48,6 +48,11 @@ Matplotlib is a Python library used for creating visualizations, such as line pl
 ```baash
 conda install matplotlib
 ```
+#### Installing Jupyter notebook
+Jupyter Notebook is an interactive development environment that allows users to write and run code in a web-based interface. Install Jupyter notebook invoking the following command
+```baash
+conda install notebook
+```
 ### Git repositories
 A Git repository (repo) is a version-controlled storage space for project files, tracking changes over time and allowing users to collaborate without overwriting each other's work. Repos can be hosted locally or on remote platforms like GitHub, facilitating efficient code management and collaboration. For more information, go to https://github.com/ 
 
@@ -67,13 +72,10 @@ git clone https://github.com/cetlab-ucsb/wri-workshop
 ```
 #### Note: initial setup
 The instructions up to this point are essential for setting up the model correctly and need to be run only once. For instructions on running the model after the initial setup, refer to the section on running the model after the initial setup.
+—---------—---------—---------—---------—---------—---------—---------—---------—---------—-----
 
-—---------—---------—---------—---------—---------—---------—---------—---------—---------—-----
-—---------—---------—---------—---------—---------—---------—---------—---------—---------—-----
 ### Jupyter Notebook
 #### Open Jupyter Notebook
-
-Jupyter Notebook is an interactive development environment that allows users to write and run code in a web-based interface. Install Jupyter notebook invoking the following command
 Note: If you have previously run the model, ensure that you delete the contents of the 'db' folder for optimal performance. Similarly, either remove or rename the results of any previous runs stored in the 'scenarios' folder.
 
 Run the following command to open the jupyter notebook interface via the terminal.
@@ -83,13 +85,15 @@ jupyter notebook
 The jupyter notebook interface will look like this:
 
 
-Visually navigate and click on the jupyter notebook titled “wri-workshop_MP.ipynb” to open the jupyter notebook.
-Once you've opened the Jupyter Notebook, simply follow the steps outlined in the notebook to generate the results. After the model has finished running, the results will be saved in your local folder. The Jupyter notebook will open in a new tab on your browser and look like this:
+Visually navigate to the file titled gridpath-workshop.ipynb located in the gridpath-workshop repository folder. The path should be: Desktop -> state_model -> gridpath-workshop-ucsb -> gridpath-workshop.ipynb. The Jupyter notebook will open in a new tab on your browser and look like this:
 
 ![jupyter_screenshot](https://github.com/cetlab-ucsb/wri-workshop/blob/main/jupyter_example.png)
 
-In jupyter, every code block needs to be run individually. You can run a code block by clicking the play button (blue circle above). Any text that starts with # is a comment. Comments are ignored by the Python interpreter and are not executed as part of the code. They are used to explain or clarify the code for developers, making it easier to understand. Some code blocks include comments which include additional context and/or instructions. 
+In jupyter, every code block needs to be run individually. You can run a code block by clicking the play button (blue circle above).
 
+Any text that starts with # is a comment. Comments are ignored by the Python interpreter and are not executed as part of the code. They are used to explain or clarify the code for developers, making it easier to understand. Some code blocks include comments which include additional context and/or instructions. 
+
+Once you've opened the Jupyter Notebook, simply follow the steps outlined in the notebook to generate the results. After the model has finished running, the results will be saved in your local folder.
 
 ### Running the model after the initial setup
 After the initial setup, there is no need to reconfigure the Conda environment or clone the Git repositories again. The user simply needs to activate the existing environment and launch the Jupyter notebook.
