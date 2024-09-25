@@ -84,10 +84,11 @@ jupyter notebook
 ```
 The jupyter notebook interface will look like this:
 
+![gp_desktop.png](https://github.com/cetlab-ucsb/wri-workshop/blob/main/gp_desktop.png)
 
 Visually navigate to the file titled gridpath-workshop.ipynb located in the gridpath-workshop repository folder. The path should be: Desktop -> state_model -> gridpath-workshop-ucsb -> gridpath-workshop.ipynb. The Jupyter notebook will open in a new tab on your browser and look like this:
 
-![jupyter_screenshot](https://github.com/cetlab-ucsb/wri-workshop/blob/main/jupyter_example.png)
+![gp_notebook](https://github.com/cetlab-ucsb/wri-workshop/blob/main/gp_notebook.png)
 
 In jupyter, every code block needs to be run individually. You can run a code block by clicking the play button (blue circle above).
 
