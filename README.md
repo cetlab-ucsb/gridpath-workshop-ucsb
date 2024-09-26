@@ -1,4 +1,4 @@
-# WRI India Decarbonization Workshop
+# GridPath Workshop
 
 ## Pre-Setup Instructions
 Before running the model, download the `state_model` folder from Google Drive and save it to your desktop. The path should be `~/Desktop/state_model`.
@@ -65,10 +65,10 @@ cd ~/Desktop/state_model/gridpath
 pip install .
 ```
 #### Clone workshop repo
-Download and clone the wri-workshop repo to the local system. The folder includes all necessary files and folder for running the model:
+Download and clone the gridpath-workshop repo to the local system. The folder includes all necessary files and folder for running the model:
 ```bash
 cd ~/Desktop/state_model  
-git clone https://github.com/cetlab-ucsb/wri-workshop
+git clone https://github.com/cetlab-ucsb/gridpath-workshop-ucsb
 ```
 #### Note: initial setup
 The instructions up to this point are essential for setting up the model correctly and need to be run only once. For instructions on running the model after the initial setup, refer to the section on running the model after the initial setup.
@@ -84,11 +84,11 @@ jupyter notebook
 ```
 The jupyter notebook interface will look like this:
 
-![gp_desktop.png](https://github.com/cetlab-ucsb/wri-workshop/blob/main/gp_desktop.png)
+![gp_desktop.png](https://github.com/cetlab-ucsb/gridpath-workshop-ucsb/main/gp_desktop.png)
 
 Visually navigate to the file titled gridpath-workshop.ipynb located in the gridpath-workshop repository folder. The path should be: Desktop -> state_model -> gridpath-workshop-ucsb -> gridpath-workshop.ipynb. The Jupyter notebook will open in a new tab on your browser and look like this:
 
-![gp_notebook](https://github.com/cetlab-ucsb/wri-workshop/blob/main/gp_notebook.png)
+![gp_notebook](https://github.com/cetlab-ucsb/gridpath-workshop-ucsb/main/gp_notebook.png)
 
 In jupyter, every code block needs to be run individually. You can run a code block by clicking the play button (blue circle above).
 
