@@ -166,10 +166,13 @@ def _plot_new_and_existing_capacity(data_, scens_label_, tech_label_,
     z_ = x_ - .9/len(scens_)
 
     y_period_ = np.max(np.array(offsets_).reshape(len(periods_), len(scens_)), axis = 0)
-    x_period_ = np.mean(np.array(x_period_).reshape(len(periods_), len(scens_)), axis = 0) - width/2.
+    x_period_ = np.mean(np.array(x_period_).reshape(len(periods_), len(scens_)), axis = 0) 
 
     for x_period, y_period, period in zip(x_period_, y_period_, periods_):
-        plt.text(x_period, (0.05*y_period_[-1] + y_period), '{}'.format(period), fontsize = 18)
+        plt.text(x_period, (0.05*y_period_[-1] + y_period), '{}'.format(period), fontsize            = 18, 
+                                                                                 weight              = 'bold',
+                                                                                 horizontalalignment = 'center', 
+                                                                                 verticalalignment   = 'center')
 
     x_ = np.linspace(0, len(periods_), len(periods_) + 1)
     dz = (x_[1] - z_[0])
@@ -214,12 +217,12 @@ def _plot_new_and_existing_capacity(data_, scens_label_, tech_label_,
 
 
 # Plot GHG emissions for different scenarios
-def _plot_emissions(emissions_, scen_labels_, save      = False,
-                                              title     = '',
-                                              legend    = False,
-                                                                     units = 1e6,
-                                                                     unit_label = r'GHG Emissions (MtCO$_2$)',
-                                                                     file_name = 'noname.pdf'):
+def _plot_emissions(emissions_, scen_labels_, save       = False,
+                                              title      = '',
+                                              legend     = False,
+                                              units      = 1e6,
+                                              unit_label = r'GHG Emissions (MtCO$_2$)',
+                                              file_name  = 'noname.pdf'):
 
 
     scens_      = scen_labels_['scenario'].to_list()
@@ -592,11 +595,14 @@ def _plot_dispatch(data_, scens_label_, tech_label_,
         x_ = x_ + .9/len(scens_)
     z_ = x_ - .9/len(scens_)
 
-    x_period_ = np.mean(np.array(x_period_).reshape(len(periods_), len(scens_)), axis = 0) - width/2.
+    x_period_ = np.mean(np.array(x_period_).reshape(len(periods_), len(scens_)), axis = 0)
     y_period_ = np.max(np.array(y_period_).reshape(len(periods_), len(scens_)), axis = 0)
 
     for x_period, y_period, period in zip(x_period_, y_period_, periods_):
-        plt.text(x_period, (0.05*y_period_[-1] + y_period)/units, '{}'.format(period), fontsize = 18)
+        plt.text(x_period, (0.05*y_period_[-1] + y_period)/units, '{}'.format(period), fontsize            = 18, 
+                                                                                       weight              = 'bold',
+                                                                                       horizontalalignment = 'center', 
+                                                                                       verticalalignment   = 'center')
 
     ax.set_xticks(ticks_, ticks_labels_, rotation = 90)
     ax.xaxis.set_tick_params(labelsize = 12, left = False)
