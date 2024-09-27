@@ -41,12 +41,12 @@ Once activated, the environment name will appear at the beginning of the termina
 #### Installing open-source solver
 GridPath needs an open-source solver software (cbc) to solve the optimization problem. To install cbc:
 
-For Mac users: run the following command to set up the cbc solver: 
+**For Mac users:** run the following command to set up the cbc solver: 
 ```bash
 conda install -c conda-forge pyomo coincbc
 ```
 
-For Windows PC users:
+**For Windows PC users:**
 1. Windows PC users need to copy the cbc.exe file to the Library/bin folder of your Anaconda environment. The cbc.exe file is located under the ‘solver’ in the primary model folder (state_model).
 2. In the Anaconda Prompt, run the following to get the list of conda environments in the system:
 ```bash
@@ -70,6 +70,7 @@ conda install notebook
 A Git repository (repo) is a version-controlled storage space for project files, tracking changes over time and allowing users to collaborate without overwriting each other's work. Repos can be hosted locally or on remote platforms like GitHub, facilitating efficient code management and collaboration. For more information, go to https://github.com/ 
 
 **For Mac users:** Git is installed by default in the OS and no extra steps are required.
+
 **For Windows users:** visit the [Git for Windows](https://git-scm.com/download/win) website and download the latest version. After downloading, run the installer and follow the prompts.
 
 #### Clone gridpath repo
