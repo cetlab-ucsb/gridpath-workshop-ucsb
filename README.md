@@ -39,10 +39,23 @@ conda activate <myenv>
 ```
 Once activated, the environment name will appear at the beginning of the terminal prompt in parenthesis - any subsequent package installations will take place within this environment.
 #### Installing open-source solver
-GridPath needs an open-source solver software (cbc) to solve the optimization problem. To install cbc enter this command in the terminal after activating your Anaconda environment
+GridPath needs an open-source solver software (cbc) to solve the optimization problem. To install cbc:
+
+For Mac users: run the following command to set up the cbc solver: 
 ```bash
 conda install -c conda-forge pyomo coincbc
 ```
+
+For Windows PC users:
+1. Windows PC users need to copy the cbc.exe file to the Library/bin folder of your Anaconda environment. The cbc.exe file is located under the ‘solver’ in the primary model folder (state_model).
+2. In the Anaconda Prompt, run the following to get the list of conda environments in the system:
+```bash
+conda env list
+```
+3. Copy the path next to the environment where <myenv> is installed. It would look something like this: C:\ProgramData\anaconda3\envs\<myenv>
+4. Open File Explorer and paste the path you copied into the address bar. Navigate to the Library folder, then to the bin folder.
+5. Copy the cbc.exe file from the location state_level\solver\cbc.exe and paste it into ~\Library\bin\ (the path navigated in step 5).
+
 #### Installing matplotlib
 Matplotlib is a Python library used for creating visualizations, such as line plots, bar charts, histograms, and more, with a high degree of customization.
 ```baash
@@ -56,18 +69,39 @@ conda install notebook
 ### Git repositories
 A Git repository (repo) is a version-controlled storage space for project files, tracking changes over time and allowing users to collaborate without overwriting each other's work. Repos can be hosted locally or on remote platforms like GitHub, facilitating efficient code management and collaboration. For more information, go to https://github.com/ 
 
+**For Mac users:** Git is installed by default in the OS and no extra steps are required.
+**For Windows users:** visit the [Git for Windows](https://git-scm.com/download/win) website and download the latest version. After downloading, run the installer and follow the prompts.
+
 #### Clone gridpath repo
 GridPath is a versatile grid-analytics platform that seamlessly integrates several power-system planning approaches – including production-cost, capacity-expansion, asset-valuation, and reliability modeling – within the same software ecosystem. More information can be found here: https://gridpath.readthedocs.io/en/latest/index.html 
+
+**For Mac users:** 
 ``` bash
 cd ~/Desktop/state_model 
 git clone https://github.com/blue-marble/gridpath.git --branch v0.14.1
 cd ~/Desktop/state_model/gridpath
 pip install .
 ```
+**For Windows users:** 
+``` bash
+cd *\Desktop\state_model 
+git clone https://github.com/blue-marble/gridpath.git --branch v0.14.1
+cd gridpath
+pip install .
+```
+
 #### Clone workshop repo
 Download and clone the gridpath-workshop repo to the local system. The folder includes all necessary files and folder for running the model:
+
+**For Mac users:** 
 ```bash
 cd ~/Desktop/state_model  
+git clone https://github.com/cetlab-ucsb/gridpath-workshop-ucsb
+```
+
+**For Windows users:** Continuing from cloning the gridpath repo section, type “cd ..” to set directory to the parent directory - state_model
+``` bash
+cd ..
 git clone https://github.com/cetlab-ucsb/gridpath-workshop-ucsb
 ```
 #### Note: initial setup
