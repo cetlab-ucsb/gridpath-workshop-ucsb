@@ -15,7 +15,7 @@ from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
 plt.rcParams['legend.handlelength'] = 1
 plt.rcParams['legend.handleheight'] = 1.125
-plt.rcParams["font.family"]         = "Avenir"
+#plt.rcParams["font.family"]         = "Avenir"
 #mpl.rcParams['pdf.fonttype'] = 42
 
 mpl.rcParams.update({"pdf.use14corefonts": True})
