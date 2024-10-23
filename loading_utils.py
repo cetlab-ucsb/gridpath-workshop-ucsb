@@ -1368,7 +1368,7 @@ def _processing_energy_dispatch_capex(scenarios_, path):
         return df_
 
     ed_p_ = []
-    for scenario in scenarios_['scenario'].unique():
+    for scenario in scenarios_['scenario']:
         print(scenario)
         dir_name = r'{}/{}'.format(path, scenario)
         ed_      = pd.read_csv(dir_name + r'/results/dispatch_all.csv')

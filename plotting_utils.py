@@ -94,7 +94,7 @@ def _plot_new_and_existing_capacity(data_, scens_label_, tech_label_,
 
     offset = 0.
     y_max  = 0
-    width  = .225
+    width  = 1/(len(scens_) + 1)
     x_     = np.linspace(0, len(periods_) - 1, len(periods_))
     fig = plt.figure(figsize = (10, 7.5))
     ax  = plt.subplot(111)
@@ -165,9 +165,9 @@ def _plot_new_and_existing_capacity(data_, scens_label_, tech_label_,
         x_ = x_ + .9/len(scens_)
     z_ = x_ - .9/len(scens_)
 
-    y_period_ = np.max(np.array(offsets_).reshape(len(periods_), len(scens_)), axis = 0)
-    x_period_ = np.mean(np.array(x_period_).reshape(len(periods_), len(scens_)), axis = 0) 
-
+    x_period_ = np.mean(np.array(x_period_).reshape(len(scens_), len(periods_)), axis = 0)
+    y_period_ = np.max(np.array(offsets_).reshape(len(scens_), len(periods_)), axis = 0)
+    
     for x_period, y_period, period in zip(x_period_, y_period_, periods_):
         plt.text(x_period, (0.05*y_period_[-1] + y_period), '{}'.format(period), fontsize            = 18, 
                                                                                  weight              = 'bold',
@@ -523,7 +523,7 @@ def _plot_dispatch(data_, scens_label_, tech_label_,
 
     colors_ = [tech_label_.loc[tech_label_['group'] == tech, 'group_color'].unique()[0] for tech in techs_]
 
-    width           = .225
+    width           = 1./(len(scens_) + 1)
     offset_positive = 0.
     offset_negative = 0.
     y               = 0
@@ -595,8 +595,8 @@ def _plot_dispatch(data_, scens_label_, tech_label_,
         x_ = x_ + .9/len(scens_)
     z_ = x_ - .9/len(scens_)
 
-    x_period_ = np.mean(np.array(x_period_).reshape(len(periods_), len(scens_)), axis = 0)
-    y_period_ = np.max(np.array(y_period_).reshape(len(periods_), len(scens_)), axis = 0)
+    x_period_ = np.mean(np.array(x_period_).reshape(len(scens_), len(periods_)), axis = 0)
+    y_period_ = np.max(np.array(y_period_).reshape(len(scens_), len(periods_)), axis = 0)
 
     for x_period, y_period, period in zip(x_period_, y_period_, periods_):
         plt.text(x_period, (0.05*y_period_[-1] + y_period)/units, '{}'.format(period), fontsize            = 18, 
@@ -679,7 +679,7 @@ def _plot_zone_energy_dispatch(ed_, scen_labels_, tech_labels_, dispatch_labels_
 
     for k in range(dispatch_labels_.shape[0]):     
 
-        row_       = dispatch_labels_.iloc[i]
+        row_       = dispatch_labels_.iloc[k]
         scen       = row_['scenario']
         zone       = row_['load_zone']
         period     = row_['period']
