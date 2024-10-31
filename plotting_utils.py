@@ -553,7 +553,7 @@ def _plot_dispatch(data_, scens_label_, tech_label_,
                 idx_ = (df_['Scenario'] == scen) & (df_['Technology'] == tech) & (df_['Period'] == period)
 
                 if idx_.sum() == 1:
-                    energy = df_.loc[idx_, 'Energy'].to_numpy()[0]
+                    energy = float(df_.loc[idx_, 'Energy'].to_numpy()[0])
                     color  = tech_label_.loc[tech_label_['group'] == tech, 'group_color'].unique()
 
                     if energy != 0:
