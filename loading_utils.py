@@ -1404,99 +1404,108 @@ def _processing_energy_dispatch_capex(scenarios_, path):
     for scenario in scenarios_['scenario']:
         print(scenario)
         dir_name = r'{}/{}'.format(path, scenario)
-        ed_      = pd.read_csv(dir_name + r'/results/dispatch_all.csv')
+        ed_      = pd.read_csv(dir_name + r'/results/project_timepoint.csv')
         load_    = pd.read_csv(dir_name + r'/inputs/load_mw.tab', sep = '\t', engine = 'python')
-        loss_    = pd.read_csv(dir_name + r'/results/transmission_operations.csv')
-        export_  = pd.read_csv(dir_name + r'/results/imports_exports.csv')
+        loss_    = pd.read_csv(dir_name + r'/results/transmission_timepoint.csv')
 
         # Trasnform timepoint to string
-        load_['timepoint']   = load_['timepoint'].apply(str)
-        ed_['timepoint']     = ed_['timepoint'].apply(str)
-        loss_['timepoint']   = loss_['timepoint'].apply(str)
-        export_['timepoint'] = export_['timepoint'].apply(str)
+        load_['timepoint'] = load_['timepoint'].apply(str)
+        ed_['timepoint']   = ed_['timepoint'].apply(str)
+        loss_['timepoint'] = loss_['timepoint'].apply(str)
 
         # Drop extra columns 
-        ed_     = ed_.drop(columns = ['horizon', 
-                                      'operational_type', 
-                                      'balancing_type', 
+        ed_ = ed_.drop(columns = ['horizon', 
+                                  'capacity_type', 
+                                  'availability_type', 
+                                  'operational_type',
+                                  'balancing_type',
+                                  'timepoint_weight', 
+                                  'number_of_hours_in_timepoint'])
+
+        loss_ = loss_.drop(columns = ['tx_operational_type', 
+                                      'tx_capacity_type', 
+                                      'tx_availability_type', 
                                       'timepoint_weight', 
                                       'number_of_hours_in_timepoint'])
-        
-        export_ = export_.drop(columns = ['timepoint_weight', 'net_imports_mw', 'number_of_hours_in_timepoint'])
-        loss_   = loss_.drop(columns = ['tx_line', 'timepoint_weight', 'number_of_hours_in_timepoint', 'transmission_flow_mw'])
 
         # Drop timepoing and add month, day and hour columns
         ed_     = __timepoint_to_date(ed_)
         load_   = __timepoint_to_date(load_)
         loss_   = __timepoint_to_date(loss_)
-        export_ = __timepoint_to_date(export_)
 
+        
         # Define or rename missing columns 
         load_['period'] = load_['timepoint'].apply(lambda x: int(x[:4]))
         load_.loc[load_['month'] < 4, 'period'] = load_['timepoint'].apply(lambda x: int(x[:4]) - 1) 
         load_ = load_.rename(columns = {'LOAD_ZONES': 'load_zone', 'load_mw': 'power_mw'})
-        #loss_ = loss_.rename(columns = {'lz_from': 'load_zone'})
+        loss_ = loss_.rename(columns = {'load_zone_to': 'load_zone', 'transmission_losses_lz_to': 'Tx_Losses'})
 
-        load_   = load_.drop(columns = ['timepoint'])
-        export_ = export_.drop(columns = ['timepoint'])
-        ed_     = ed_.drop(columns = ['timepoint'])
-        loss_   = loss_.drop(columns = ['timepoint'])
+        ed_   = ed_.drop(columns = ['timepoint'])
+        load_ = load_.drop(columns = ['timepoint'])
+        loss_ = loss_.drop(columns = ['timepoint'])
 
-        export_p_                           = export_.copy()
-        export_p_['imports_mw']             = 0.
-        export_p_['exports_mw']             = 0.
-        idx_                                = export_['imports_mw'] >= 0.
-        export_p_.loc[idx_, 'imports_mw']  += export_.loc[idx_, 'imports_mw']
-        export_p_.loc[~idx_, 'exports_mw'] += export_.loc[~idx_, 'imports_mw']
-        idx_                               = export_['exports_mw'] >= 0.
-        export_p_.loc[idx_, 'imports_mw']  -= export_.loc[idx_, 'exports_mw']
-        export_p_.loc[~idx_, 'exports_mw'] -= export_.loc[~idx_, 'exports_mw']
-        export_                             = export_p_.copy()
 
-        imports_ = export_[['load_zone', 'period', 'month', 'day', 'interval', 'imports_mw']].rename(columns = {'imports_mw': 'power_mw'})
-        exports_ = export_.drop(columns = ['imports_mw']).rename(columns = {'exports_mw': 'power_mw'})
+        loss_p_                          = loss_.copy()
+        loss_p_['imports_mw']            = 0.
+        loss_p_['exports_mw']            = 0.
+        idx_                             = loss_p_['transmission_flow_mw'] >= 0.
+        loss_p_.loc[idx_, 'imports_mw']  = loss_p_.loc[idx_, 'transmission_flow_mw']
+        loss_p_.loc[~idx_, 'exports_mw'] = loss_p_.loc[~idx_, 'imports_mw']
+        loss_                            = loss_p_.copy()
 
-        imports_['technology'] = 'Import'
-        exports_['technology'] = 'Export'
-        load_['technology']    = 'Load'
+        ed_ = ed_.drop(columns = ['capacity_mw', 
+                                  'availability_derate', 
+                                  'spinning_reserves_ba', 
+                                  'spinning_reserves_reserve_provision_mw',
+                                  'starting_energy_mwh', 
+                                  'startup_cost', 
+                                  'shutdown_cost', 
+                                  'operational_violation_cost', 
+                                  'gross_power_mw', 
+                                  'auxiliary_consumption_mw', 
+                                  'net_power_mw', 
+                                  'committed_mw', 
+                                  'variable_om_cost', 
+                                  'fuel_cost', 
+                                  'committed_units',
+                                  'total_curtailment_mw',
+                                  'soc_penalty_cost',
+                                  'scheduled_curtailment_mw',
+                                  'soc_last_tmp_penalty_cost',
+                                  'carbon_emissions_tons',
+                                  'subhourly_curtailment_mw',
+                                  'curtailment_cost',
+                                  'subhourly_energy_delivered_mw', 'charge_mw', 'discharge_mw'])
+        
+        loss_ = loss_.drop(columns = ['load_zone_from', 
+                                      'transmission_flow_mw', 
+                                      'transmission_losses_lz_from', 
+                                      'transmission_line'])
 
-        # Drop Bhutan as load_zone and sort chronologically
-        net_     = ed_.groupby(['load_zone', 'period', 'month', 'day', 'interval']).sum().reset_index(drop = False)
-        load_    = load_.drop(imports_.index[load_['load_zone'] == 'Bhutan']).reset_index(drop = True)
-        imports_ = imports_.drop(imports_.index[imports_['load_zone'] == 'Bhutan']).reset_index(drop = True)
-        exports_ = exports_.drop(exports_.index[exports_['load_zone'] == 'Bhutan']).reset_index(drop = True)
-        net_     = net_.sort_values(['load_zone', 'period', 'month', 'day', 'interval'])
-        load_    = load_.sort_values(['load_zone', 'period', 'month', 'day', 'interval'])
-        imports_ = imports_.sort_values(['load_zone', 'period', 'month', 'day', 'interval'])
-        exports_ = exports_.sort_values(['load_zone', 'period', 'month', 'day', 'interval'])
+        ed_ = ed_.groupby(['load_zone', 'technology', 'period', 'month', 'day', 'interval']).sum().reset_index(drop = False)
+        ed_ = ed_.drop(columns = ['project'])
 
-        loss_from_ = loss_.copy()
-        loss_to_   = loss_.copy()
-        loss_to_   = loss_to_.rename(columns = {'lz_to': 'load_zone'})
-        loss_to_   = loss_to_.drop(columns = ['lz_from', 'transmission_losses_lz_from'])
-        loss_to_   = loss_to_.rename(columns = {'transmission_losses_lz_to': 'power_mw'})
-        loss_from_ = loss_from_.rename(columns = {'lz_from': 'load_zone'})
-        loss_from_ = loss_from_.drop(columns = ['lz_to', 'transmission_losses_lz_to'])
-        loss_from_ = loss_from_.rename(columns = {'transmission_losses_lz_from': 'power_mw'})
-        loss_      = pd.concat([loss_from_, loss_to_]).reset_index(drop = True)
+        
+        loss_p_               = loss_.copy()
+        loss_p_               = loss_p_.drop(columns = ['imports_mw', 'exports_mw']).rename(columns = {'Tx_Losses': 'power_mw'})
+        loss_p_['technology'] = 'Tx_Losses'
+        ed_                   = pd.concat([ed_, loss_p_], axis = 0)
 
-        # Caculate transmission losses
-        loss_               = loss_.groupby(['load_zone', 'period', 'month', 'day', 'interval']).sum().reset_index(drop = False)
-        loss_['technology'] = 'Tx_Losses'
-        loss_['power_mw']   = - loss_['power_mw'].to_numpy()
+        loss_p_               = loss_.copy()
+        loss_p_               = loss_p_.drop(columns = ['Tx_Losses', 'exports_mw']).rename(columns = {'imports_mw': 'power_mw'})
+        loss_p_['technology'] = 'Import'
+        ed_                   = pd.concat([ed_, loss_p_], axis = 0)
 
-        # Caculate energy curtailment
-        net_['power_mw']                           += imports_['power_mw'].to_numpy()
-        net_['power_mw']                           += exports_['power_mw'].to_numpy()
-        net_['power_mw']                           -= load_['power_mw'].to_numpy()
-        net_.loc[net_['power_mw'] < 0., 'power_mw'] = 0.
-        net_['power_mw']                           -= net_['power_mw'].to_numpy()
-        net_['technology']                          = 'Curtailment'    
-        ed_             = pd.concat([ed_, imports_, exports_, load_, net_, loss_]).reset_index(drop = True)
+        loss_p_               = loss_.copy()
+        loss_p_               = loss_p_.drop(columns = ['Tx_Losses', 'imports_mw']).rename(columns = {'exports_mw': 'power_mw'})
+        loss_p_['technology'] = 'Export'
+        ed_                   = pd.concat([ed_, loss_p_], axis = 0)
+        load_['technology']   = 'Load'
+
+        ed_             = pd.concat([ed_, load_]).reset_index(drop = True)
         ed_['scenario'] = scenario
         ed_p_.append(ed_)
     return pd.concat(ed_p_, axis = 0)
-    
 
 def _group_dispatch_technologies_by_zone_and_date(df_, tech_labels_):
     groups_ = tech_labels_['group'].unique()
