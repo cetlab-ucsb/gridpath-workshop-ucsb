@@ -5,7 +5,7 @@ import numpy as np
 import itertools
 
 # Grab data from databases for plotting new and existing capacity
-def _load_new_and_existing_capacity(scen_labels_, path):
+def _load_capacity_capex(scen_labels_, path):
 
     # Load project capacity table and process them from database
     def __load_new_and_existing_csv(capacity_, projects_, zones_, scenario):
@@ -350,7 +350,6 @@ def _load_energy_dispatch(scen_labels_, path):
 
         return pd.DataFrame(np.array(demand_), columns = ['Scenario', 'Period', 'Technology', 'Zone', 'Energy'])
 
-    
     scenarios_ = scen_labels_['scenario'].unique()
     zones_     = scen_labels_['zone'].unique()
     dfs_       = []
@@ -1514,7 +1513,70 @@ def _group_dispatch_technologies_by_zone_and_date(df_, tech_labels_):
     return df_.groupby(['load_zone', 'period', 'month', 'day', 'interval', 'technology', 'scenario']).sum().reset_index(drop = False)
 
 
-__all__ = ['_load_new_and_existing_capacity',
+# Grab data from databases for plotting new and existing capacity
+def _load_capacity_production(scen_labels_, path):
+
+    scenarios_ = scen_labels_['scenario'].unique()
+    zones_     = scen_labels_['zone'].unique()
+    dfs_       = []
+
+    # Open connection: open database and grab meta-data
+    for scenario in scenarios_:
+        print(scenario)
+        dir_name        = r'{}/{}'.format(path, scenario)
+        capacity_table_ = pd.read_csv(dir_name + r'/1/results/project_period.csv', low_memory = False)
+        capacity_table_ = capacity_table_[['technology', 'period', 'load_zone', 'capacity_mw', 'energy_capacity_mwh']]
+        capacity_table_ = capacity_table_.groupby(['technology', 'period', 'load_zone'], as_index = False).sum()
+        capacity_table_ = capacity_table_.rename(columns = {'period': 'Period', 
+                                                            'load_zone': 'Zone', 
+                                                            'capacity_mw': 'Power', 
+                                                            'energy_capacity_mwh': 'Energy', 
+                                                            'technology': 'Technology'})
+        capacity_table_['Status']   = 'new'
+        capacity_table_['Scenario'] = scenario
+
+    return capacity_table_[['Scenario', 'Period', 'Technology', 'Zone', 'Status', 'Power', 'Energy']]
+
+
+def _processing_energy_dispatch_production(scenarios_, path):
+    
+    ed_p_ = []
+    for scenario in scenarios_['scenario']:
+        print(scenario)
+        
+        dir_name = r'{}/{}'.format(path, scenario)
+
+        ed_ = []
+        for folder in next(os.walk(dir_name))[1]:
+            ed_.append(pd.read_csv(dir_name + f'/{folder}/results/project_timepoint.csv'))
+        ed_ = pd.concat(ed_, axis = 0).reset_index(drop = True)
+
+        load_ = []
+        for folder in next(os.walk(dir_name))[1]:
+            load_.append(pd.read_csv(dir_name + f'/{folder}/inputs/load_mw.tab', sep = '\t', engine = 'python'))
+        load_ = pd.concat(load_, axis = 0).reset_index(drop = True)
+        
+        # Define or rename missing columns 
+        load_ = load_.rename(columns = {'LOAD_ZONES': 'load_zone', 'load_mw': 'power_mw'})
+
+        load_['technology'] = 'Load'
+
+        ed_ = ed_[['load_zone', 'technology', 'timepoint', 'power_mw']]
+        ed_ = ed_.groupby(['load_zone', 'technology', 'timepoint']).sum().reset_index(drop = False)
+        ed_ = pd.concat([ed_, load_]).reset_index(drop = True)
+        ed_['scenario'] = scenario
+        ed_p_.append(ed_)
+    return pd.concat(ed_p_, axis = 0)
+
+
+def _group_dispatch_technologies_by_zone_and_date_production(df_, tech_labels_):
+    groups_ = tech_labels_['group'].unique()
+    for group in groups_:
+        df_.loc[df_['technology'].isin(tech_labels_.loc[tech_labels_['group'] == group, 'technology'].to_list()), 'technology'] = group
+    return df_.groupby(['load_zone', 'technology', 'scenario', 'timepoint']).sum().reset_index(drop = False)
+
+
+__all__ = ['_load_capacity_capex',
            '_group_capacity_technologies', 
            '_load_new_and_existing_capacity_by_zone',
            '_load_energy_dispatch_by_zone',
@@ -1539,4 +1601,7 @@ __all__ = ['_load_new_and_existing_capacity',
            '_load_energy_trading',
            '_merge_dispatch_and_tx_losses', 
            '_processing_energy_dispatch_capex', 
-           '_group_dispatch_technologies_by_zone_and_date']
+           '_group_dispatch_technologies_by_zone_and_date', 
+           '_load_capacity_production', 
+           '_processing_energy_dispatch_production', 
+           '_group_dispatch_technologies_by_zone_and_date_production']

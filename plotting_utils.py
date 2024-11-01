@@ -214,8 +214,6 @@ def _plot_new_and_existing_capacity(data_, scens_label_, tech_label_,
         plt.savefig(file_name, bbox_inches = 'tight', dpi = 300)
         plt.show()
 
-
-
 # Plot GHG emissions for different scenarios
 def _plot_emissions(emissions_, scen_labels_, save       = False,
                                               title      = '',
@@ -230,10 +228,9 @@ def _plot_emissions(emissions_, scen_labels_, save       = False,
     colors_     = scen_labels_['color'].to_list()
     labels_     = scen_labels_['label'].to_list()
     linestyles_ = scen_labels_['linestyle'].to_list()
-
+    markers_    = scen_labels_['marker'].to_list()
 
     data_ = emissions_.groupby(['Scenario', 'Period', 'Zone']).sum().reset_index(drop = False)
-
 
     fig = plt.figure(figsize = (4., 5))
     ax  = plt.subplot(111)
@@ -244,6 +241,7 @@ def _plot_emissions(emissions_, scen_labels_, save       = False,
 
         ax.plot(df_['Period'], df_['GHG']/units, color     = colors_[i_scen],
                                                  linestyle = linestyles_[i_scen],
+                                                 marker    = markers_[i_scen],
                                                  label     = '{}'.format(labels_[i_scen]),
                                                  linewidth = 1.5,
                                                  alpha     = 0.75)
@@ -394,6 +392,8 @@ def _plot_emissions_intensity(emissions_, scen_labels_, save       = False,
     colors_     = scen_labels_['color'].to_list()
     labels_     = scen_labels_['label'].to_list()
     linestyles_ = scen_labels_['linestyle'].to_list()
+    markers_    = scen_labels_['marker'].to_list()
+
     data_       = emissions_.groupby(['Scenario', 'Period', 'Zone']).sum().reset_index(drop = False)
 
     fig = plt.figure(figsize = (4., 5))
@@ -405,6 +405,7 @@ def _plot_emissions_intensity(emissions_, scen_labels_, save       = False,
 
         ax.plot(df_['Period'], df_['Intensity'], color     = colors_[i_scen],
                                                  linestyle = linestyles_[i_scen],
+                                                 marker    = markers_[i_scen],
                                                  label     = '{}'.format(labels_[i_scen]),
                                                  linewidth = 1.5,
                                                  alpha     = 0.75)
@@ -447,6 +448,7 @@ def _plot_system_cost(system_cost_, scen_labels_, save       = False,
     colors_     = scen_labels_['color'].to_list()
     labels_     = scen_labels_['label'].to_list()
     linestyles_ = scen_labels_['linestyle'].to_list()
+    markers_    = scen_labels_['marker'].to_list()
     data_       = system_cost_.groupby(['Scenario', 'Period', 'Zone']).sum().reset_index(drop = False)
 
     fig = plt.figure(figsize = (4, 5))
@@ -461,6 +463,7 @@ def _plot_system_cost(system_cost_, scen_labels_, save       = False,
                 color     = colors_[i_scen],
                 linestyle = linestyles_[i_scen],
                 label     = labels_[i_scen],
+                marker    = markers_[i_scen],
                 linewidth = 1.5,
                 alpha     = 0.75)
 
@@ -613,7 +616,6 @@ def _plot_dispatch(data_, scens_label_, tech_label_,
     ax.set_ylabel(units_label, fontsize = 18)
     ax.set_yticks(y_ticks_, y_ticks_)
     ax.yaxis.set_tick_params(labelsize = 12, left = False)
-
 
     x_ = np.linspace(0, len(periods_), len(periods_) + 1)
     dz = (x_[1] - z_[0])
@@ -798,9 +800,145 @@ def _plot_zone_energy_dispatch(ed_, scen_labels_, tech_labels_, dispatch_labels_
     plt.show()
     
 
+# Plot energy dispatch for a given day
+def _plot_zone_energy_dispatch_production(ed_, scen_labels_, tech_labels_, dispatch_labels_, units     = 1e3,
+                                                                                             save      = False, 
+                                                                                             legend    = False,
+                                                                                             file_name = 'noname.pdf'):
+     
+    figures_ = dispatch_labels_['subplot'].unique()
+    N_plots  = len(figures_)
+    
+    N_y = N_plots // 4
+
+    if N_y > 0:
+        N_x = 4
+    else:
+        N_x = N_plots
+
+    fig = plt.figure(figsize = (N_x*7.5, (N_y + 1)*4))
+    
+    index_ = []
+    for i in range(N_y + 1):
+        for j in range(N_x):
+            index_.append([i, j])   
+
+    for k in figures_:   
+        timepoints_ = dispatch_labels_.loc[dispatch_labels_['subplot'] == k, 'timepoint'].to_list()
+        
+        k -= 1
+
+        ed_pp_ = ed_.loc[ed_['timepoint'].isin(timepoints_)]
+
+        ax = plt.subplot2grid((N_y + 1, N_x), (index_[k][0], index_[k][1]))
+        #ax.set_title(f'({month:02}/{day:02}/{period})\n{scen_label}', fontsize = 16)
+        
+        all_colors_ = []
+        legend_     = []
+        y_          = []
+        for tech in tech_labels_['group'].unique():
+            ed_ppp_ = ed_pp_.loc[ed_pp_['technology'] == tech, 'power_mw'].to_numpy()/units
+            idx_    = ed_ppp_ > 0.
+            if idx_.sum() > 0.:
+                y_p_       = np.zeros((ed_ppp_.shape[0],))
+                y_p_[idx_] = ed_ppp_[idx_]
+                color      = tech_labels_.loc[tech_labels_['group']== tech, 'group_color'].to_numpy()[0]
+                all_colors_.append(color)
+                y_.append(y_p_)
+
+                ax.bar(0., 0., 0., bottom    = 0. ,
+                                   label     = tech,
+                                   color     = color,
+                                   lw        = 0.,
+                                   edgecolor = "None", 
+                                   zorder    = 10)
+
+        ax.stackplot(timepoints_, np.vstack(y_), colors = all_colors_, 
+                                        zorder = 10, 
+                                        lw     = 0.)
+    
+        all_colors_ = []
+        y_          = []
+        for tech in tech_labels_['group'].unique():
+            ed_ppp_ = ed_pp_.loc[ed_pp_['technology'] == tech, 'power_mw'].to_numpy()/units
+            idx_    = ed_ppp_ < 0.
+    
+            if idx_.sum() > 0.:
+                y_p_       = np.zeros((ed_ppp_.shape[0],))
+                y_p_[idx_] = ed_ppp_[idx_]
+                color      = tech_labels_.loc[tech_labels_['group']== tech, 'group_color'].to_numpy()[0]
+    
+                all_colors_.append(color)
+                y_.append(y_p_)
+    
+        ax.bar(0., 0., 0., bottom    = 0. ,
+                           label     = 'Exports',
+                           color     = '#900C3F',
+                           lw        = 0.,
+                           hatch     = 'xx', 
+                           edgecolor = 'lightgray', 
+                           zorder    = 10)
+        
+        ax.bar(0., 0., 0., bottom    = 0. ,
+                           label     = 'Charge',
+                           color     = 'None',
+                           lw        = 0.,
+                           hatch     = 'xx', 
+                           edgecolor = 'lightgray', 
+                           zorder    = 10)
+        
+        if len(y_) > 0.:    
+            ax.stackplot(timepoints_, np.vstack(y_), colors    = all_colors_, 
+                                             zorder    = 10, 
+                                             hatch     = 'xx', 
+                                             edgecolor = 'lightgrey', 
+                                             lw        = 0.)
+    
+        load_ = ed_pp_.loc[ed_pp_['technology'] == 'Load', 'power_mw'].to_numpy()/units
+    
+        ax.plot(timepoints_, load_, color     = 'r', 
+                           linestyle = '--', 
+                           label     = 'Demand',
+                           lw        = 1.75, 
+                           alpha     = 1., 
+                           zorder    = 11)
+
+        if index_[k][1] == 0: ax.set_ylabel(r'Energy (GWh)', fontsize = 16)
+    
+        
+        ax.grid(axis = 'y')
+        ax.set_xticks(timepoints_[::2], timepoints_[::2], rotation = 90)
+    
+        ax.xaxis.set_tick_params(labelsize = 10)
+        ax.yaxis.set_tick_params(labelsize = 10)
+    
+        ax.axhline(0, linewidth = .5, 
+                      linestyle = '-', 
+                      color     = 'k', 
+                      clip_on   = False, 
+                      zorder    = 10)
+    
+        ax.set_xlim(timepoints_[0], timepoints_[-1])
+        
+    if legend:
+        ax.legend(loc            = 'center left', 
+                  bbox_to_anchor = (1.1, 0.475),
+                  frameon        = False,
+                  prop           = {'size': 14})
+
+    if N_y > 0:
+        plt.tight_layout(w_pad = -15)
+    else:
+        plt.tight_layout()
+
+    if save: plt.savefig(file_name, bbox_inches = 'tight', 
+                                    dpi         = 300)
+    plt.show()
+
 __all__ = ['_plot_new_and_existing_capacity',
            '_plot_emissions_intensity',
            '_plot_emissions',
            '_plot_system_cost',
            '_plot_dispatch', 
-           '_plot_zone_energy_dispatch']
+           '_plot_zone_energy_dispatch', 
+           '_plot_zone_energy_dispatch_production']
