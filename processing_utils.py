@@ -23,11 +23,11 @@ def _filter_capacity(grouped_capacity_, scenario = '' , status = ''):
     else:
         # If neither scenario nor gen_status is specified, no filtering applied
         filtered_data = grouped_capacity_
-    
+
     # Convert to wide format by pivoting
     return filtered_data.pivot_table(index   = 'Technology',
                                      columns = ['Scenario', 'Period'],
                                      values  = 'Power',
-                                     aggfunc = 'sum').reset_index(drop = True)
+                                     aggfunc = 'sum').reset_index(drop = False)
     
 __all__ = ['_filter_capacity']

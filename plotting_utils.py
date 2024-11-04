@@ -20,38 +20,6 @@ plt.rcParams['legend.handleheight'] = 1.125
 
 mpl.rcParams.update({"pdf.use14corefonts": True})
 
-tech_colors_  = pd.DataFrame(columns = ['color'], 
-                             index   = ['Battery', 'Hydrogen', 'WHR',  'Nuclear', 
-                                        'Biomass', 'Hydro_Pumped', 'Hydro_ROR', 'Hydro_Storage', 
-                                        'Diesel', 'CCGT', 'CT', 'Subcritical_Coal_Large', 
-                                        'Subcritical_Coal_Small', 'Supercritical_Coal', 'SolarPV_tilt', 'SolarPV_single', 
-                                        'Wind', 'Export', 'Curtailment', 'Tx_Losses', 'Import'])
-
-tech_colors_['color'] = ['#e7c41f', 'teal', '#6ba661', '#8d72b3', 
-                         '#6a96ac', '#2a648a', '#2a648a', '#2a648a', 
-                         '#924B00', '#6c757d', '#6c757d', '#343a40', 
-                         '#343a40', '#343a40', '#ef9226', '#daac77', 
-                         '#8dc0cd', '#55A182', '#c94f39', '#656d4a', '#900C3F']
-
-color_groups_  = pd.DataFrame(columns = ['color'], 
-                             index   = ['Battery', 'Hydrogen', 'Other',  'Nuclear', 
-                                        'Pumped Storage', 'Hydro', 'Diesel', 'Gas', 
-                                        'Coal', 'Solar', 'Wind', 'Export', 
-                                        'Curtailment', 'Tx_Losses', 'Import'])
-
-color_groups_['color'] = ['#e7c41f', 'teal', '#6ba661', '#8d72b3', 
-                          '#6a96ac', '#2a648a', '#924B00', '#6c757d', 
-                          '#343a40', '#ef9226', '#8dc0cd', '#55A182', 
-                          '#c94f39', '#656d4a', '#900C3F']
-
-scen_colors_ = pd.DataFrame(columns = ['color', 'lines'], 
-                            index   = ['C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8', 'C9'])
-    
-scen_colors_['color'] = ['#92918B', '#126463', '#521A1A', '#2CB7B5', '#756A00', '#CA8250', '#D8A581', '#1F390D', '#900C3F']
-scen_colors_['lines'] = ['solid', 'solid', 'dotted', 'dotted', 'dashed', 'dashed', 'dashdot', 'dashdot', 'dashdot']
-
-
-# Plot new and existing capacity for different scenarios
 def _plot_new_and_existing_capacity(data_, scens_label_, tech_label_,
                                     units        = 1e3,
                                     units_label  = '(GW)',
@@ -75,7 +43,7 @@ def _plot_new_and_existing_capacity(data_, scens_label_, tech_label_,
 
         for tech, i_tech in zip(techs_, range(len(techs_))):
             idx_ = df_['Technology'] == tech
-            if idx_.sum() > 1:
+            if idx_.sum() > 0:
                 if df_.loc[idx_, 'Power'].sum() != 0:
                     ax.bar(0., 0., 0., bottom = 0.,
                                        color  = colors_[i_tech],
@@ -114,7 +82,8 @@ def _plot_new_and_existing_capacity(data_, scens_label_, tech_label_,
 
         lengths_.append(len(scen))
         for period, i_period in zip(periods_, range(len(periods_))):
-            if (i_scen == 0) & (i_period == 0): __make_new_and_existing_capacit_legend(df_, techs_, colors_, ax)
+            if (i_scen == 0) & (i_period == 0): 
+                __make_new_and_existing_capacit_legend(df_, techs_, colors_, ax)
 
             for tech, i_tech in zip(techs_, range(len(techs_))):
                 idx_ = (df_['Zone'] == zone) & (df_['Period'] == period)
@@ -491,7 +460,6 @@ def _plot_system_cost(system_cost_, scen_labels_, save       = False,
 
     plt.show()
 
-# Plot energy dispatch per technology for different scenarios
 def _plot_dispatch(data_, scens_label_, tech_label_,
                    units        = 1e6,
                    units_label  = r'Electricity Generation (TWh)',
@@ -506,7 +474,7 @@ def _plot_dispatch(data_, scens_label_, tech_label_,
     def __make_dispatch_legend(data_, techs_, colors_, ax):
         for tech, i_tech in zip(techs_, range(len(techs_))):
             idx_ = data_['Technology'] == tech
-            if idx_.sum() > 1:
+            if idx_.sum() > 0:
                 if data_.loc[idx_, 'Energy'].to_numpy().sum() != 0:
                     ax.bar(0., 0., 0., bottom = 0.,
                                        color  = colors_[i_tech],
@@ -637,8 +605,6 @@ def _plot_dispatch(data_, scens_label_, tech_label_,
     plt.title(title, fontsize = 18,
                      y        = 0.9125)
 
-    plt.ylim(1.1*np.min(offset_)/units, 1.1*y_period_.max()/units)
-
     ax.spines[['right', 'top', 'left', 'bottom']].set_visible(False)
     ax.grid(axis = 'y')
 
@@ -647,8 +613,7 @@ def _plot_dispatch(data_, scens_label_, tech_label_,
                                dpi         = 300)
 
     plt.show()
-
-
+    
 # Plot energy dispatch for a given day
 def _plot_zone_energy_dispatch(ed_, scen_labels_, tech_labels_, dispatch_labels_, units     = 1e3,
                                                                                   save      = False, 
@@ -799,7 +764,6 @@ def _plot_zone_energy_dispatch(ed_, scen_labels_, tech_labels_, dispatch_labels_
                                     dpi         = 300)
     plt.show()
     
-
 # Plot energy dispatch for a given day
 def _plot_zone_energy_dispatch_production(ed_, scen_labels_, tech_labels_, dispatch_labels_, units     = 1e3,
                                                                                              save      = False, 
@@ -808,15 +772,16 @@ def _plot_zone_energy_dispatch_production(ed_, scen_labels_, tech_labels_, dispa
      
     figures_ = dispatch_labels_['subplot'].unique()
     N_plots  = len(figures_)
-    
-    N_y = N_plots // 4
+
+    N_x = 2
+    N_y = N_plots // N_x
 
     if N_y > 0:
-        N_x = 4
+        N_x = N_x
     else:
         N_x = N_plots
 
-    fig = plt.figure(figsize = (N_x*7.5, (N_y + 1)*4))
+    fig = plt.figure(figsize = (N_x*10, (N_y + 1)*5))
     
     index_ = []
     for i in range(N_y + 1):
@@ -825,6 +790,8 @@ def _plot_zone_energy_dispatch_production(ed_, scen_labels_, tech_labels_, dispa
 
     for k in figures_:   
         timepoints_ = dispatch_labels_.loc[dispatch_labels_['subplot'] == k, 'timepoint'].to_list()
+        scen        = dispatch_labels_.loc[dispatch_labels_['subplot'] == k, 'scenario'].to_list()[0]
+        load_zone   = dispatch_labels_.loc[dispatch_labels_['subplot'] == k, 'load_zone'].to_list()[0]
         
         k -= 1
 
@@ -837,8 +804,10 @@ def _plot_zone_energy_dispatch_production(ed_, scen_labels_, tech_labels_, dispa
         legend_     = []
         y_          = []
         for tech in tech_labels_['group'].unique():
-            ed_ppp_ = ed_pp_.loc[ed_pp_['technology'] == tech, 'power_mw'].to_numpy()/units
+            idx_    = (ed_pp_['technology'] == tech) & (ed_pp_['scenario'] == scen) & (ed_pp_['load_zone'] == load_zone)
+            ed_ppp_ = ed_pp_.loc[idx_, 'power_mw'].to_numpy()/units
             idx_    = ed_ppp_ > 0.
+
             if idx_.sum() > 0.:
                 y_p_       = np.zeros((ed_ppp_.shape[0],))
                 y_p_[idx_] = ed_ppp_[idx_]
@@ -860,19 +829,20 @@ def _plot_zone_energy_dispatch_production(ed_, scen_labels_, tech_labels_, dispa
         all_colors_ = []
         y_          = []
         for tech in tech_labels_['group'].unique():
-            ed_ppp_ = ed_pp_.loc[ed_pp_['technology'] == tech, 'power_mw'].to_numpy()/units
+            idx_    = (ed_pp_['technology'] == tech) & (ed_pp_['scenario'] == scen) & (ed_pp_['load_zone'] == load_zone)
+            ed_ppp_ = ed_pp_.loc[idx_, 'power_mw'].to_numpy()/units
             idx_    = ed_ppp_ < 0.
     
             if idx_.sum() > 0.:
                 y_p_       = np.zeros((ed_ppp_.shape[0],))
                 y_p_[idx_] = ed_ppp_[idx_]
                 color      = tech_labels_.loc[tech_labels_['group']== tech, 'group_color'].to_numpy()[0]
-    
+
                 all_colors_.append(color)
                 y_.append(y_p_)
     
         ax.bar(0., 0., 0., bottom    = 0. ,
-                           label     = 'Exports',
+                           label     = 'Export',
                            color     = '#900C3F',
                            lw        = 0.,
                            hatch     = 'xx', 
@@ -893,8 +863,8 @@ def _plot_zone_energy_dispatch_production(ed_, scen_labels_, tech_labels_, dispa
                                              hatch     = 'xx', 
                                              edgecolor = 'lightgrey', 
                                              lw        = 0.)
-    
-        load_ = ed_pp_.loc[ed_pp_['technology'] == 'Load', 'power_mw'].to_numpy()/units
+        idx_  = (ed_pp_['technology'] == 'Load') & (ed_pp_['scenario'] == scen) & (ed_pp_['load_zone'] == load_zone)
+        load_ = ed_pp_.loc[idx_, 'power_mw'].to_numpy()/units
     
         ax.plot(timepoints_, load_, color     = 'r', 
                            linestyle = '--', 
@@ -909,8 +879,8 @@ def _plot_zone_energy_dispatch_production(ed_, scen_labels_, tech_labels_, dispa
         ax.grid(axis = 'y')
         ax.set_xticks(timepoints_[::2], timepoints_[::2], rotation = 90)
     
-        ax.xaxis.set_tick_params(labelsize = 10)
-        ax.yaxis.set_tick_params(labelsize = 10)
+        ax.xaxis.set_tick_params(labelsize = 12)
+        ax.yaxis.set_tick_params(labelsize = 12)
     
         ax.axhline(0, linewidth = .5, 
                       linestyle = '-', 
@@ -926,13 +896,14 @@ def _plot_zone_energy_dispatch_production(ed_, scen_labels_, tech_labels_, dispa
                   frameon        = False,
                   prop           = {'size': 14})
 
-    if N_y > 0:
-        plt.tight_layout(w_pad = -15)
-    else:
-        plt.tight_layout()
+    # if N_y > 0:
+    #     plt.tight_layout(w_pad = -1)
+    # else:
+    plt.tight_layout()
 
-    if save: plt.savefig(file_name, bbox_inches = 'tight', 
-                                    dpi         = 300)
+    if save: 
+        plt.savefig(file_name, bbox_inches = 'tight', 
+                               dpi         = 300)
     plt.show()
 
 __all__ = ['_plot_new_and_existing_capacity',
