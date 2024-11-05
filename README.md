@@ -25,7 +25,7 @@ Use the terminal to interact with Conda:
 In the terminal, create a new environment named `<myenv>` with Python version 3.8 for GridPath:
 
 ```bash
-conda create -n <myenv> python=3.8
+conda create -n <myenv> python=3.9
 ```
 Conda offers various tools to manage environments, including activating, deactivating, listing, and removing them as needed. For detailed information on managing Conda environments, refer to this guide. For example, you can view all existing environments in Conda by running: 
 ```bash
@@ -79,14 +79,14 @@ GridPath is a versatile grid-analytics platform that seamlessly integrates sever
 **For Mac users:** 
 ``` bash
 cd ~/Desktop/state_model 
-git clone https://github.com/blue-marble/gridpath.git --branch v0.14.1
+git clone https://github.com/blue-marble/gridpath.git --branch v0.16.1
 cd ~/Desktop/state_model/gridpath
 pip install .
 ```
 **For Windows users:** 
 ``` bash
 cd *\Desktop\state_model 
-git clone https://github.com/blue-marble/gridpath.git --branch v0.14.1
+git clone https://github.com/blue-marble/gridpath.git --branch v0.16.1
 cd gridpath
 pip install .
 ```
