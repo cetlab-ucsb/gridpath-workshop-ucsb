@@ -22,7 +22,7 @@ Use the terminal to interact with Conda:
 - **Windows**: Open "Anaconda Prompt" from the Start menu.
 
 ### Creating a Conda Environment
-In the terminal, create a new environment named `<myenv>` with Python version 3.8 for GridPath:
+In the terminal, create a new environment named `<myenv>` with Python version 3.9 for GridPath:
 
 ```bash
 conda create -n <myenv> python=3.9
@@ -121,7 +121,11 @@ The jupyter notebook interface will look like this:
 
 ![gp_desktop](https://github.com/cetlab-ucsb/gridpath-workshop-ucsb/blob/main/images/gp_desktop.png)
 
-Visually navigate to the file titled gridpath-workshop.ipynb located in the gridpath-workshop repository folder. The path should be: Desktop -> state_model -> gridpath-workshop-ucsb -> gridpath-workshop.ipynb. The Jupyter notebook will open in a new tab on your browser and look like this:
+There are two Jupyter notebooks available, each for a separate model. Please choose the one you would like to run and visually navigate to the Jupyter notebook located in the gridpath-workshop folder. The path should be: Desktop -> state_model -> gridpath-workshop-ucsb. The two notebooks are:
+- gridpath-workshop-capex.ipynb: Runs the capacity expansion model
+- gridpath-workshop-production.ipynb: Runs the production cost model
+  
+The selected Jupyter notebook will open in a new tab in your browser and should look like this:
 
 ![gp_notebook](https://github.com/cetlab-ucsb/gridpath-workshop-ucsb/blob/main/images/gp_notebook.png)
 
@@ -129,7 +133,7 @@ In jupyter, every code block needs to be run individually. You can run a code bl
 
 Any text that starts with # is a comment. Comments are ignored by the Python interpreter and are not executed as part of the code. They are used to explain or clarify the code for developers, making it easier to understand. Some code blocks include comments which include additional context and/or instructions. 
 
-Once you've opened the Jupyter Notebook, simply follow the steps outlined in the notebook to generate the results. After the model has finished running, the results will be saved in your local folder.
+Once you have opened the Jupyter Notebook, simply follow the steps outlined in the notebook to generate the results. After the model has finished running, the results will be saved in your local folder.
 
 ### Running the model after the initial setup
 After the initial setup, there is no need to reconfigure the Conda environment or clone the Git repositories again. The user simply needs to activate the existing environment and launch the Jupyter notebook.
