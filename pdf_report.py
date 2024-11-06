@@ -26,12 +26,18 @@ def generate_pdf_report(directory, plot_details_csv, output_pdf_filename, tables
     max_table_rows_per_page = 50
     page_width, page_height = 8.5, 11
 
-    # Load partner logos
+    # Load logos
     emlab_logo_path = os.path.join(directory, 'gridpath-workshop-ucsb/images/emlab_logo_horizontal.png')
     cetlab_logo_path = os.path.join(directory, 'gridpath-workshop-ucsb/images/cetlab_logo.png')
-    emlab_logo_image = Image.open(emlab_logo_path)  # Load without resizing
-    cetlab_logo_image = Image.open(cetlab_logo_path)  # Load without resizing
+    wri_logo_path = os.path.join(directory, 'gridpath-workshop-ucsb/images/WRI-India-logo.png')
+    prayas_logo_path = os.path.join(directory, 'gridpath-workshop-ucsb/images/Prayas_logo.png')
 
+    # Load logos as images
+    emlab_logo_image = Image.open(emlab_logo_path)
+    cetlab_logo_image = Image.open(cetlab_logo_path)
+    wri_logo_image = Image.open(wri_logo_path)
+    prayas_logo_image = Image.open(prayas_logo_path)
+        
     def truncate_text(text, max_width):
         if len(text) > max_width:
             return text[:max_width - 3] + '...'
@@ -122,7 +128,7 @@ def generate_pdf_report(directory, plot_details_csv, output_pdf_filename, tables
         raise
 
     content_added = False
-    logos = [emlab_logo_image, cetlab_logo_image]
+    logos = [emlab_logo_image, cetlab_logo_image, wri_logo_image, prayas_logo_image]
 
     with PdfPages(os.path.join(directory, output_pdf_filename)) as pdf:
         for idx, row in plot_details.iterrows():
