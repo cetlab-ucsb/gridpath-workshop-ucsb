@@ -45,13 +45,41 @@ def generate_pdf_report(directory, plot_details_csv, output_pdf_filename, tables
             return text
 
     def add_footer_logos(fig, logos):
-        logo_x_position = 0.05
+        """
+        Adds multiple logos to the footer with associated text labels.
+        """
+        # Set up logo dimensions and initial positions
         logo_width, logo_height = 0.1, 0.08
-        for logo_image in logos:
-            ax_logo = fig.add_axes([logo_x_position, 0.02, logo_width, logo_height])
+        
+        # Positions for logos
+        emlab_x_position = 0.05
+        cetlab_x_position = 0.17 
+        wri_x_position = 0.30 
+
+        # Text labels and corresponding logos
+        logo_positions = [
+            ("Developed by:", emlab_x_position, emlab_logo_image),
+            ("", cetlab_x_position, cetlab_logo_image),
+            ("Supported by:", wri_x_position, wri_logo_image)
+        ]
+
+        # Loop through each logo and add it at the specified position
+        for index, (label, x_position, logo_image) in enumerate(logo_positions):
+            # Add logo image
+            ax_logo = fig.add_axes([x_position, 0.02, logo_width, logo_height])
             ax_logo.imshow(logo_image)
             ax_logo.axis('off')
-            logo_x_position += 0.12
+            
+            # Add text label: "Developed by:" below the first two logos, "Supported by:" below the last one
+            if index == 0:
+                # Add "Developed by:" centered under emlab and cetlab logos
+                fig.text(0.10, 0.09, "Developed by:", ha='center', fontsize=8)
+            elif index == 2:
+                # Add "Supported by:" below wri logo
+                fig.text(0.34, 0.09, "Supported by:", ha='center', fontsize=8)
+
+
+
 
     def add_plot_with_description(pdf, image_path, title, description, logos):
         title_fontsize = 18
