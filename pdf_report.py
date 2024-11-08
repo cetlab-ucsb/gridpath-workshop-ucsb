@@ -84,7 +84,7 @@ def generate_pdf_report(directory, plot_details_csv, output_pdf_filename, tables
     def add_plot_with_description(pdf, image_path, title, description, logos):
         title_fontsize = 18
         description_fontsize = 12
-        fig, ax = plt.subplots(figsize=(8.5, 11))
+        fig, ax = plt.subplots(figsize=(8.5, 11), dpi=300)
         ax.axis('off')
         full_width_margin = 0.05
         full_width = 1 - 2 * full_width_margin
@@ -101,7 +101,7 @@ def generate_pdf_report(directory, plot_details_csv, output_pdf_filename, tables
         plt.close(fig)
 
     def add_title_page(pdf, title, logos):
-        fig, ax = plt.subplots(figsize=(8.5, 11))
+        fig, ax = plt.subplots(figsize=(8.5, 11), dpi=300)
         ax.axis('off')
         fig.text(0.5, 0.6, title, ha='center', fontsize=28, weight='bold')
         add_footer_logos(fig, logos)
@@ -109,7 +109,7 @@ def generate_pdf_report(directory, plot_details_csv, output_pdf_filename, tables
         plt.close(fig)
 
     def add_paragraph_page(pdf, title, paragraph_text, logos):
-        fig, ax = plt.subplots(figsize=(page_width, page_height))
+        fig, ax = plt.subplots(figsize=(page_width, page_height), dpi=300)
         ax.axis('off')
         wrapped_text = "\n".join(textwrap.wrap(paragraph_text, width=85))
         fig.text(0.5, 0.9, title, ha='center', fontsize=16, weight='bold')
@@ -119,7 +119,7 @@ def generate_pdf_report(directory, plot_details_csv, output_pdf_filename, tables
         plt.close(fig)
 
     def add_tables_to_pdf(pdf, tables, logos):
-        fig, ax = plt.subplots(figsize=(page_width, page_height))
+        fig, ax = plt.subplots(figsize=(page_width, page_height), dpi=300)
         ax.axis('off')
         fig.text(0.5, 0.95, "Tables", ha='center', fontsize=16, weight='bold')
         add_footer_logos(fig, logos)

@@ -180,7 +180,7 @@ def _plot_new_and_existing_capacity(data_, scens_label_, tech_label_,
     plt.grid(axis = 'y')
 
     if save:
-        plt.savefig(file_name, bbox_inches = 'tight', dpi = 300)
+        plt.savefig(file_name, bbox_inches = 'tight', dpi = 600)
         plt.show()
 
 # Plot GHG emissions for different scenarios
@@ -236,7 +236,7 @@ def _plot_emissions(emissions_, scen_labels_, save       = False,
                      y        = 0.9125)
 
     if save: plt.savefig(file_name, bbox_inches = 'tight',
-                                    dpi         = 300)
+                                    dpi         = 600)
 
     plt.show()
     
@@ -286,7 +286,7 @@ def _plot_system_cost(system_cost_, scens_, scen_lables_, colors_, zone, save   
     #plt.ylim(data_.min() - 0.035*data_.min(), data_.max() + 0.035*data_.max())
 
     if save: plt.savefig(path + file_name, bbox_inches = 'tight', 
-                                           dpi         = 300)
+                                           dpi         = 600)
 
     plt.show()
 #
@@ -400,7 +400,7 @@ def _plot_emissions_intensity(emissions_, scen_labels_, save       = False,
                      y        = 0.9125)
 
     if save: plt.savefig(file_name, bbox_inches = 'tight',
-                                    dpi         = 300)
+                                    dpi         = 600)
 
     plt.show()
 
@@ -456,7 +456,7 @@ def _plot_system_cost(system_cost_, scen_labels_, save       = False,
     plt.title(title, fontsize = 18,
                      y        = 0.9125)
 
-    if save: plt.savefig(file_name, bbox_inches = 'tight', dpi = 300)
+    if save: plt.savefig(file_name, bbox_inches = 'tight', dpi = 600)
 
     plt.show()
 
@@ -610,7 +610,7 @@ def _plot_dispatch(data_, scens_label_, tech_label_,
 
     if save:
         plt.savefig(file_name, bbox_inches = 'tight',
-                               dpi         = 300)
+                               dpi         = 600)
 
     plt.show()
     
@@ -761,7 +761,7 @@ def _plot_zone_energy_dispatch(ed_, scen_labels_, tech_labels_, dispatch_labels_
         plt.tight_layout()
 
     if save: plt.savefig(file_name, bbox_inches = 'tight', 
-                                    dpi         = 300)
+                                    dpi         = 600)
     plt.show()
     
 # Plot energy dispatch for a given day
@@ -903,7 +903,7 @@ def _plot_zone_energy_dispatch_production(ed_, scen_labels_, tech_labels_, dispa
 
     if save: 
         plt.savefig(file_name, bbox_inches = 'tight', 
-                               dpi         = 300)
+                               dpi         = 600)
     plt.show()
 
 __all__ = ['_plot_new_and_existing_capacity',
