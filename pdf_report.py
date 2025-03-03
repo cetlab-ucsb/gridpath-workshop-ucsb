@@ -6,6 +6,7 @@ from PIL import Image
 import matplotlib.pyplot as plt
 import os
 import textwrap
+pd.options.display.float_format = "{:,.2f}".format
 
 def generate_pdf_report(directory, plot_details_csv, output_pdf_filename, tables=None, add_tables=False):
     """
@@ -19,6 +20,7 @@ def generate_pdf_report(directory, plot_details_csv, output_pdf_filename, tables
     - add_tables (bool, optional): Whether to add tables to the PDF.
 
     """
+    pd.options.display.float_format = "{:,.2f}".format
 
     # Directory where your plot images are stored
     plot_directory = os.path.join(directory, 'plots')
@@ -126,6 +128,7 @@ def generate_pdf_report(directory, plot_details_csv, output_pdf_filename, tables
         pdf.savefig(fig)
         plt.close(fig)
         for table_df in tables:
+            table = table.applymap(lambda x: "{:,.2f}".format(x) if isinstance(x, (int, float)) else x)
             table_data = table_df.values
             column_labels = table_df.columns
             row_labels = table_df.index
@@ -137,7 +140,7 @@ def generate_pdf_report(directory, plot_details_csv, output_pdf_filename, tables
                 max_cell_width = 8
                 for row in range(subset_data.shape[0]):
                     for col in range(subset_data.shape[1]):
-                        subset_data[row, col] = truncate_text(str(subset_data[row, col]), max_cell_width)
+                        subset_data = subset_data.astype(str)
                 fig, ax = plt.subplots(figsize=(page_width, page_height))
                 ax.axis('off')
                 table = ax.table(cellText=subset_data, colLabels=column_labels, rowLabels=subset_row_labels, loc='center', cellLoc='center')
