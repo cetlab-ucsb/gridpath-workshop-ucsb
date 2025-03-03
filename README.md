@@ -3,7 +3,7 @@
 ## Pre-Setup Instructions
 Before running the model, download the `state_model` folder from Google Drive and save it to your desktop. The path should be `~/Desktop/state_model`.
 
-Google Drive link: [Download Folder](https://drive.google.com/drive/folders/1GnN0Eq1uCrRrRReP_92QB3Tz0MLzliB-)
+Google Drive link: [Download Folder](https://drive.google.com/drive/folders/142BlcFxdiTySeYojj59ZxfT-YbV9oT2B)
 
 ### Setting up Conda
 
