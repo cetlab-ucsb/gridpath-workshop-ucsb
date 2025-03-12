@@ -128,7 +128,7 @@ def generate_pdf_report(directory, plot_details_csv, output_pdf_filename, tables
         pdf.savefig(fig)
         plt.close(fig)
         for table_df in tables:
-            table = table.applymap(lambda x: "{:,.2f}".format(x) if isinstance(x, (int, float)) else x)
+            table_df = table_df.applymap(lambda x: "{:,.2f}".format(x) if isinstance(x, (int, float)) else x)
             table_data = table_df.values
             column_labels = table_df.columns
             row_labels = table_df.index
@@ -143,7 +143,21 @@ def generate_pdf_report(directory, plot_details_csv, output_pdf_filename, tables
                         subset_data = subset_data.astype(str)
                 fig, ax = plt.subplots(figsize=(page_width, page_height))
                 ax.axis('off')
-                table = ax.table(cellText=subset_data, colLabels=column_labels, rowLabels=subset_row_labels, loc='center', cellLoc='center')
+                # Ensure index name is included in column labels
+                column_labels = ["Scenario"] + list(table_df.columns)
+                # Ensure index values are included in table data
+                table_data = [[row_label] + list(row) for row_label, row in zip(table_df.index, table_df.values)]
+                # Adjust column width dynamically
+                num_cols = len(column_labels)
+                col_widths = [0.3] + [0.6] * (num_cols - 1)  # First column narrower, others wider
+                
+                table = ax.table(
+                    cellText=table_data, 
+                    colLabels=column_labels,  
+                    loc='center', 
+                    cellLoc='center',  
+                    colWidths=col_widths  # Set dynamic column widths
+                )
                 table.auto_set_font_size(False)
                 table.set_fontsize(10)
                 table.scale(1.2, 1.2)
